@@ -11,20 +11,20 @@ export default class ApiService {
     this.searchQuery = '';
   }
 
-  getPhotos() {
-    return axios
-      .get(this.#BASE_URL, {
-        params: {
-          key: this.#API_KEY,
-          page: this.page,
-          q: this.searchQuery,
-          image_type: 'photo',
-          orientation: 'horizontal',
-          safesearch: true,
-          per_page: this.itemsPerPage,
-        },
-      })
-      .then(({ data }) => data);
+  async getPhotos() {
+    const response = await axios.get(this.#BASE_URL, {
+      params: {
+        key: this.#API_KEY,
+        page: this.page,
+        q: this.searchQuery,
+        image_type: 'photo',
+        orientation: 'horizontal',
+        safesearch: true,
+        per_page: this.itemsPerPage,
+      },
+    });
+
+    return response.data;
   }
 
   getPage() {

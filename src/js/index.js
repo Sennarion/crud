@@ -1,7 +1,7 @@
 import { Notify } from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import ApiService from './api-service';
-import listTemplate from './templates/listTemplate.hbs';
+import createListTemplate from './templates/listTemplate.hbs';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const refs = {
@@ -10,10 +10,13 @@ const refs = {
   loadBtnRef: document.querySelector('.load-more'),
 };
 
+refs.formRef.addEventListener('submit', onFormSubmit);
+refs.loadBtnRef.addEventListener('click', onLoadMoreBtnClick);
+
 const apiService = new ApiService();
 const lightbox = new SimpleLightbox('.gallery-link');
 
-function onFormSubmit(e) {
+async function onFormSubmit(e) {
   e.preventDefault();
   clearGalleryMarkup();
   hideLoadMoreBtn();
@@ -22,61 +25,54 @@ function onFormSubmit(e) {
   const searchQuery = e.target.elements.searchQuery.value;
   apiService.changeQuery(searchQuery);
 
-  apiService
-    .getPhotos()
-    .then(({ hits, totalHits }) => {
-      if (hits.length === 0) {
-        Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.'
-        );
-        return;
-      }
+  try {
+    const { hits, totalHits } = await apiService.getPhotos();
 
-      Notify.info(`Hooray! We found ${totalHits} images.`);
+    if (hits.length === 0) {
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
 
-      const photos = listTemplate(hits);
-      appendPhotosMarkup(photos);
+      return;
+    }
 
-      if (totalHits > apiService.getItemsPerPage()) {
-        showLoadMoreBtn();
-      }
-    })
-    .catch(err => {
-      Notify.failure(`Trouble! Error name: ${err.message}`);
-    })
-    .finally(() => {
-      lightbox.refresh();
-    });
+    Notify.info(`Hooray! We found ${totalHits} images.`);
 
+    const photosMarkup = createListTemplate(hits);
+    appendPhotosMarkup(photosMarkup);
+
+    if (totalHits > apiService.getItemsPerPage()) {
+      showLoadMoreBtn();
+    }
+  } catch (error) {
+    Notify.failure(`Trouble! Error name: ${error.message}`);
+  }
+
+  lightbox.refresh();
   e.target.reset();
 }
 
-function onLoadMoreBtnClick() {
+async function onLoadMoreBtnClick() {
   apiService.incrementPage();
   disableLoadMoreBtn();
 
-  apiService
-    .getPhotos()
-    .then(({ hits, totalHits }) => {
-      const photos = listTemplate(hits);
-      appendPhotosMarkup(photos);
+  try {
+    const { hits, totalHits } = await apiService.getPhotos();
 
-      if (totalHits <= apiService.getItemsPerPage() * apiService.getPage()) {
-        Notify.info(
-          "We're sorry, but you've reached the end of search results."
-        );
+    const photosMarkup = createListTemplate(hits);
+    appendPhotosMarkup(photosMarkup);
 
-        hideLoadMoreBtn();
-      }
-    })
-    .catch(err => {
-      Notify.failure(`Trouble! Error name: ${err.message}`);
-    })
-    .finally(() => {
-      scrollToNewPhotos();
-      enableLoadMoreBth();
-      lightbox.refresh();
-    });
+    if (totalHits <= apiService.getItemsPerPage() * apiService.getPage()) {
+      Notify.info("We're sorry, but you've reached the end of search results.");
+      hideLoadMoreBtn();
+    }
+  } catch (error) {
+    Notify.failure(`Trouble! Error name: ${error.message}`);
+  }
+
+  scrollToNewPhotos();
+  enableLoadMoreBth();
+  lightbox.refresh();
 }
 
 function appendPhotosMarkup(photos) {
@@ -114,6 +110,3 @@ function scrollToNewPhotos() {
     behavior: 'smooth',
   });
 }
-
-refs.formRef.addEventListener('submit', onFormSubmit);
-refs.loadBtnRef.addEventListener('click', onLoadMoreBtnClick);
