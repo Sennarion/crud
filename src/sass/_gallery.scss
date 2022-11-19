@@ -5,7 +5,7 @@
 .gallery-list {
   display: grid;
   gap: 20px;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   margin-bottom: 30px;
 }
 
@@ -46,6 +46,7 @@
 }
 
 .info-label {
+  font-size: 14px;
   font-weight: 400;
   text-decoration: underline;
   font-style: italic;
