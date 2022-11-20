@@ -22,6 +22,7 @@ const observer = new IntersectionObserver(onScrollToEnd, {
 
 async function onFormSubmit(e) {
   e.preventDefault();
+  observer.unobserve(refs.observerRef);
 
   const searchQuery = e.target.elements.searchQuery.value;
 
