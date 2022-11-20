@@ -11,17 +11,17 @@ export default class ApiService {
   }
 
   async getPhotos() {
-    const response = await axios.get(this.#BASE_URL, {
-      params: {
-        key: this.#API_KEY,
-        page: this.page,
-        q: this.searchQuery,
-        image_type: 'photo',
-        orientation: 'horizontal',
-        safesearch: true,
-        per_page: this.itemsPerPage,
-      },
+    const params = new URLSearchParams({
+      key: this.#API_KEY,
+      page: this.page,
+      q: this.searchQuery,
+      image_type: 'photo',
+      orientation: 'horizontal',
+      safesearch: true,
+      per_page: this.itemsPerPage,
     });
+
+    const response = await axios.get(this.#BASE_URL, { params });
 
     return response.data;
   }
@@ -36,6 +36,10 @@ export default class ApiService {
 
   resetPage() {
     this.page = 1;
+  }
+
+  getQuery() {
+    return this.searchQuery;
   }
 
   changeQuery(query) {

@@ -18,11 +18,17 @@ const lightbox = new SimpleLightbox('.gallery-link');
 
 async function onFormSubmit(e) {
   e.preventDefault();
+
+  const searchQuery = e.target.elements.searchQuery.value;
+
+  if (searchQuery === apiService.getQuery()) {
+    return;
+  }
+
   clearGalleryMarkup();
   hideLoadMoreBtn();
   apiService.resetPage();
 
-  const searchQuery = e.target.elements.searchQuery.value;
   apiService.changeQuery(searchQuery);
 
   try {
@@ -32,7 +38,6 @@ async function onFormSubmit(e) {
       Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
       );
-
       return;
     }
 
@@ -57,15 +62,16 @@ async function onLoadMoreBtnClick() {
   disableLoadMoreBtn();
 
   try {
-    const { hits, totalHits } = await apiService.getPhotos();
+    const { hits } = await apiService.getPhotos();
+
+    if (hits.length === 0) {
+      Notify.info("We're sorry, but you've reached the end of search results.");
+      hideLoadMoreBtn();
+      return;
+    }
 
     const photosMarkup = createListTemplate(hits);
     appendPhotosMarkup(photosMarkup);
-
-    if (totalHits <= apiService.getItemsPerPage() * apiService.getPage()) {
-      Notify.info("We're sorry, but you've reached the end of search results.");
-      hideLoadMoreBtn();
-    }
   } catch (error) {
     Notify.failure(`Trouble! Error description: ${error.message}`);
   }
