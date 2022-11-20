@@ -21,8 +21,7 @@ export default class ApiService {
       per_page: this.itemsPerPage,
     });
 
-    const response = await axios.get(this.#BASE_URL, { params });
-
+    const response = await axios.get(`${this.#BASE_URL}?${params}`);
     return response.data;
   }
 
