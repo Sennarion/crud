@@ -25,7 +25,7 @@ async function onFormSubmit(e) {
 
   const searchQuery = e.target.elements.searchQuery.value;
 
-  if (searchQuery === apiService.getQuery()) {
+  if (searchQuery === apiService.getQuery() || searchQuery === '') {
     return;
   }
 
