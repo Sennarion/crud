@@ -66,6 +66,7 @@ async function onLoadMoreBtnClick() {
 
     if (hits.length === 0) {
       Notify.info("We're sorry, but you've reached the end of search results.");
+      enableLoadMoreBth();
       hideLoadMoreBtn();
       return;
     }
