@@ -7,14 +7,18 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 const refs = {
   formRef: document.querySelector('.search-form'),
   galleryRef: document.querySelector('.gallery-list'),
-  loadBtnRef: document.querySelector('.load-more'),
+  observerRef: document.querySelector('.observer'),
 };
 
 refs.formRef.addEventListener('submit', onFormSubmit);
-refs.loadBtnRef.addEventListener('click', onLoadMoreBtnClick);
 
 const apiService = new ApiService();
 const lightbox = new SimpleLightbox('.gallery-link');
+const observer = new IntersectionObserver(onScrollToEnd, {
+  root: null,
+  rootMargin: '50px',
+  threshold: 1.0,
+});
 
 async function onFormSubmit(e) {
   e.preventDefault();
@@ -26,9 +30,7 @@ async function onFormSubmit(e) {
   }
 
   clearGalleryMarkup();
-  hideLoadMoreBtn();
   apiService.resetPage();
-
   apiService.changeQuery(searchQuery);
 
   try {
@@ -47,7 +49,7 @@ async function onFormSubmit(e) {
     appendPhotosMarkup(photosMarkup);
 
     if (totalHits > apiService.getItemsPerPage()) {
-      showLoadMoreBtn();
+      observer.observe(refs.observerRef);
     }
   } catch (error) {
     Notify.failure(`Trouble! Error description: ${error.message}`);
@@ -57,29 +59,29 @@ async function onFormSubmit(e) {
   e.target.reset();
 }
 
-async function onLoadMoreBtnClick() {
-  apiService.incrementPage();
-  disableLoadMoreBtn();
+async function onScrollToEnd([entry]) {
+  if (entry.isIntersecting) {
+    apiService.incrementPage();
 
-  try {
-    const { hits } = await apiService.getPhotos();
+    try {
+      const { hits } = await apiService.getPhotos();
 
-    if (hits.length === 0) {
-      Notify.info("We're sorry, but you've reached the end of search results.");
-      enableLoadMoreBth();
-      hideLoadMoreBtn();
-      return;
+      if (hits.length === 0) {
+        Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+        observer.unobserve(refs.observerRef);
+        return;
+      }
+
+      const photosMarkup = createListTemplate(hits);
+      appendPhotosMarkup(photosMarkup);
+    } catch (error) {
+      Notify.failure(`Trouble! Error description: ${error.message}`);
     }
 
-    const photosMarkup = createListTemplate(hits);
-    appendPhotosMarkup(photosMarkup);
-    scrollToNewPhotos();
-  } catch (error) {
-    Notify.failure(`Trouble! Error description: ${error.message}`);
+    lightbox.refresh();
   }
-
-  enableLoadMoreBth();
-  lightbox.refresh();
 }
 
 function appendPhotosMarkup(photos) {
@@ -88,32 +90,4 @@ function appendPhotosMarkup(photos) {
 
 function clearGalleryMarkup() {
   refs.galleryRef.innerHTML = '';
-}
-
-function showLoadMoreBtn() {
-  refs.loadBtnRef.classList.remove('hidden');
-}
-
-function hideLoadMoreBtn() {
-  refs.loadBtnRef.classList.add('hidden');
-}
-
-function disableLoadMoreBtn() {
-  refs.loadBtnRef.disabled = true;
-  refs.loadBtnRef.textContent = 'Loading...';
-}
-
-function enableLoadMoreBth() {
-  refs.loadBtnRef.disabled = false;
-  refs.loadBtnRef.textContent = 'Load more';
-}
-
-function scrollToNewPhotos() {
-  const { height: cardHeight } =
-    refs.galleryRef.firstElementChild.getBoundingClientRect();
-
-  window.scrollBy({
-    top: cardHeight * 3,
-    behavior: 'smooth',
-  });
 }
