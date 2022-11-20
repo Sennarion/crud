@@ -22,7 +22,6 @@ const observer = new IntersectionObserver(onScrollToEnd, {
 
 async function onFormSubmit(e) {
   e.preventDefault();
-  observer.unobserve(refs.observerRef);
 
   const searchQuery = e.target.elements.searchQuery.value;
 
@@ -30,6 +29,7 @@ async function onFormSubmit(e) {
     return;
   }
 
+  observer.unobserve(refs.observerRef);
   clearGalleryMarkup();
   apiService.resetPage();
   apiService.changeQuery(searchQuery);
