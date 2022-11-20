@@ -72,11 +72,11 @@ async function onLoadMoreBtnClick() {
 
     const photosMarkup = createListTemplate(hits);
     appendPhotosMarkup(photosMarkup);
+    scrollToNewPhotos();
   } catch (error) {
     Notify.failure(`Trouble! Error description: ${error.message}`);
   }
 
-  scrollToNewPhotos();
   enableLoadMoreBth();
   lightbox.refresh();
 }
