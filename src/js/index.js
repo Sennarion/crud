@@ -45,7 +45,7 @@ async function onFormSubmit(e) {
       showLoadMoreBtn();
     }
   } catch (error) {
-    Notify.failure(`Trouble! Error name: ${error.message}`);
+    Notify.failure(`Trouble! Error description: ${error.message}`);
   }
 
   lightbox.refresh();
@@ -67,7 +67,7 @@ async function onLoadMoreBtnClick() {
       hideLoadMoreBtn();
     }
   } catch (error) {
-    Notify.failure(`Trouble! Error name: ${error.message}`);
+    Notify.failure(`Trouble! Error description: ${error.message}`);
   }
 
   scrollToNewPhotos();
