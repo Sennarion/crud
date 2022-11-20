@@ -4,11 +4,10 @@ export default class ApiService {
   #BASE_URL = 'https://pixabay.com/api/';
   #API_KEY = '31430528-1a800584242396ee95291d1e0';
 
-  itemsPerPage = 40;
-
   constructor() {
     this.page = 1;
     this.searchQuery = '';
+    this.itemsPerPage = 40;
   }
 
   async getPhotos() {
