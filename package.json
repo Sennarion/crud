@@ -2,10 +2,10 @@
   "name": "parcel-project-template",
   "version": "2.0.0",
   "description": "",
-  "homepage": "https://sennarion.github.io/crud",
+  "homepage": "https://sennarion.github.io/hw-js-crud",
   "scripts": {
     "start": "parcel src/*.html",
-    "build": "parcel build src/*.html --public-url /crud/"
+    "build": "parcel build src/*.html --public-url /hw-js-crud/"
   },
   "repository": {
     "type": "git",
